@@ -1,5 +1,4 @@
 #requires -version 5
-#Requires -RunAsAdministrator
 <#
 .SYNOPSIS
   This script will retrieve the bitlocker recovery key from the configmgr database using the computer name or recovery key id
@@ -28,35 +27,26 @@
 #---------------------------------------------------------[Initialisations]--------------------------------------------------------
 
 #Set Error Action to Silently Continue
-$ErrorActionPreference = "SilentlyContinue"
+#$ErrorActionPreference = "SilentlyContinue"
 param (
     [parameter (
-        Mandatory = $true,
-        ValueFromPipeline = $true,
-        Position = 0
+        Mandatory = $true
     )]
     [string[]]$ServerInstance,      
     [parameter (
-        Mandatory = $false,
-        ValueFromPipeline = $true,
-        Position = 1
+        Mandatory = $true
     )]
     [string[]]$SiteCode,
     [parameter (
-        Mandatory = $false,
-        ValueFromPipeline = $true,
-        Position = 2
+        Mandatory = $false
     )]
     [string[]]$ComputerName,
     [parameter (
-        Mandatory = $false,
-        ValueFromPipeline = $true,
-        Position = 3
+        Mandatory = $false
     )]
     [string[]]$KeyID
 )
 #----------------------------------------------------------[Declarations]----------------------------------------------------------
-
 $sqlRecoveryByComputer = "
 USE [CM_$SiteCode]
 GO
@@ -158,15 +148,21 @@ $SqlServerInstalled = Get-Module -Name 'SqlServer'
 
 
 #-----------------------------------------------------------[Execution]------------------------------------------------------------
+
 If ($SqlServerInstalled -eq $null) {
     Install-Module -Name "SqlServer" -Force
+	Import-Module -name "SqlServer" -Force
 }
-If (($ComputerName -ne $null) -and ($KeyID -ne $null) {
+
+$RecoveryHelp = ""
+
+If (($ComputerName -ne $null) -and ($KeyID -ne $null)) {
     Write-Host "You need to only enter a ComputerName or a KeyID, not both"
 } 
 Elseif ($ComputerName -ne $null) {
-    Invoke-SqlCmd -ServerInstance $ServerInstance -Query $sqlRecoveryByComputer -Credential $(Get-Credential)
+    $RecoveryHelp = Invoke-SqlCmd -ServerInstance "$ServerInstance" -Query $sqlRecoveryByComputer
 }
 Elseif ($KeyID -ne $null) {
-    Invoke-SqlCmd -ServerInstance $ServerInstance -Query $sqlRecoveryByID -Credential $(Get-Credential)
+    $RecoveryHelp = Invoke-SqlCmd -ServerInstance "$ServerInstance" -Query $sqlRecoveryByID
 }
+$RecoveryHelp.'Recovery Key'
