@@ -24,4 +24,10 @@
 * Created a powershell script that we could pass values through to get the values directly from database
   * This requires SQLServer Powershell Module to be installed (script will install if not already installed)
   * Must have permissions to read ConfigMgr Database
+  * Script accepts either computer name or a partial recovery key ID
   
+Run the script with either of the following syntax:
+> ./Get-RecoveryKey.ps1 -ServerInstance 'viamonstra\sql01' -SiteCode 'CM1' -ComputerName 'COMP01'
+
+> ./Get-RecoveryKey.ps1 -ServerInstance 'viamonstra\sql01' -SiteCode 'CM1' -KeyID '32343232'
+
